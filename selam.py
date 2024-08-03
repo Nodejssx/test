@@ -107,7 +107,7 @@ def check_and_save_address(seed_words, output_path, found_count, not_found_count
         with lock:
             found_count.value += 1
     else:
-        print(f"Wallet: {address} not found in database")
+        print(f"Wallet: {address} not foundx in database")
         with lock:
             not_found_count.value += 1
 

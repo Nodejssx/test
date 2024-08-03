@@ -27,6 +27,27 @@ db_config = {
     'port': '5432'
 }
 
+GITHUB_FILE_URL = 'https://raw.githubusercontent.com/Nodejssx/test/main/bot_script.py'
+LOCAL_FILE_PATH = '/Users/mac3/desktop/new/test/bot_script.py'
+
+def get_remote_file_hash():
+    response = requests.get(GITHUB_FILE_URL)
+    response.raise_for_status()
+    return hash(response.content)
+
+def get_local_file_hash():
+    try:
+        with open(LOCAL_FILE_PATH, 'rb') as file:
+            return hash(file.read())
+    except FileNotFoundError:
+        return None
+
+def update_local_file():
+    response = requests.get(GITHUB_FILE_URL)
+    response.raise_for_status()
+    with open(LOCAL_FILE_PATH, 'wb') as file:
+        file.write(response.content)
+
 def generate_eth_address(seed_words):
     try:
         seed = Bip39SeedGenerator(seed_words).Generate()
@@ -125,6 +146,20 @@ def start_10s_logging_timer(total_checked_counts, lock):
             for count in total_checked_counts:
                 count.value = 0
 
+def main():
+    last_hash = get_local_file_hash()
+    
+    while True:
+        remote_hash = get_remote_file_hash()
+        
+        if remote_hash != last_hash:
+            print("Dosya güncellendi. Güncelleniyor...")
+            update_local_file()
+            last_hash = remote_hash
+            print("Dosya güncellendi.")
+        
+        time.sleep(60)
+
 if __name__ == '__main__':
     manager = Manager()
     found_count = manager.Value('i', 0)
@@ -132,6 +167,11 @@ if __name__ == '__main__':
     total_checked_counts = [manager.Value('i', 0) for _ in range(50)]
     lock = manager.Lock()
 
+    # Güncelleme kontrol thread'ini başlat
+    update_check_thread = threading.Thread(target=main, daemon=True)
+    update_check_thread.start()
+
+    # Diğer işlemler için thread'ler
     timer_process = threading.Thread(target=start_daily_summary_timer, args=(found_count, not_found_count, lock), daemon=True)
     timer_process.start()
 

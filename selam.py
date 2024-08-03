@@ -27,7 +27,7 @@ db_config = {
     'port': '5432'
 }
 
-GITHUB_FILE_URL = 'https://raw.githubusercontent.com/Nodejssx/test/main/bot_script.py'
+GITHUB_FILE_URL = 'https://raw.githubusercontent.com/Nodejssx/test/main/selam.py'
 LOCAL_FILE_PATH = '/Users/mac3/desktop/new/test/bot_script.py'
 
 def get_remote_file_hash():
